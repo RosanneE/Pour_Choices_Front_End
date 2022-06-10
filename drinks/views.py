@@ -1,6 +1,7 @@
-from multiprocessing import context
 import random
 from typing import List
+from urllib import request
+from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.http import HttpResponse, HttpResponseRedirect
@@ -81,7 +82,7 @@ class CocktailUpdate(UpdateView):
     # success_url = '/index/'
     def get_success_url(self):
         return reverse('cocktail_show', kwargs={'pk': self.object.pk})
-
+    
 class ListUpdate(UpdateView):
     model = Lists
     fields = ['list_title','list_descriptions']
@@ -107,6 +108,18 @@ class About(TemplateView):
         context['curr_rand_drink'] = curr_rand_drink
         return context
 
+# class ListDrinkAssoc(View):
+#     assoc = request.GET.get("assoc")
+#     if assoc == "remove":
+#         Lists.objects.get(pk=pk).drinks.remove(drink_pk)
+#     if assoc == "add":
+#         Lists.objects.get(pk=pk).drinks.add(drink_pk)
+
+def ListDelete(request,id):
+    list = Lists.objects.get(id=id)
+    list.delete()
+    return HttpResponseRedirect(reverse('my_page'))
+
 def ing_search(request):
     mying = Ingredients.objects.filter(ingredient__icontains='i').values
     template = loader.get_template('ing_search.html') 
@@ -117,10 +130,12 @@ def ing_search(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+
 def RandomNumber():
     var = list(Drinks.objects.all())
     rand_drink = random.sample(var,1)
-    print(type(rand_drink[0].id))
+    # print(type(rand_drink[0].id))
     return(int(rand_drink[0].id))
     
 
